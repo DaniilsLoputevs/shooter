@@ -4,7 +4,7 @@ package com.shooter.lwjgl3
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
-import com.shooter.Main
+import com.shooter.Game
 
 /** Launches the desktop (LWJGL3) application.
  *
@@ -18,20 +18,19 @@ import com.shooter.Main
  * 360p: 640 x 360
  * 240p: 426 x 240
  *
- * todo - TriggerSystem : dynamic, scope, ?(upd frequency), addTrigger(), delTrigger()
- * todo - AssetManager : group, ?scope, disposeAllAssets()
+ * todo - TriggerSystem : name, dynamic, scope, ?(upd frequency), addTrigger(), delTrigger()
+ * todo - AssetHolder : uuid(name), group, ?scope, disposeAllAssets()
  * todo - abstract layers:
  *  1 - static(immutable) scene
  *  2 - dynamic scene
  *  3 -
  * todo - InputSystem -> addTriggers
- * todo - ?WorldState
- * todo -
+ * todo - yaml config (remove file object Config)
  * todo -
  * todo -
  * */
 fun main() {
-    Lwjgl3Application(Main(), Lwjgl3ApplicationConfiguration().apply {
+    Lwjgl3Application(Game(), Lwjgl3ApplicationConfiguration().apply {
         setTitle("shooter")
         setWindowedMode(854, 480)
         setWindowIcon(*(arrayOf(128, 64, 32, 16).map { "libgdx$it.png" }.toTypedArray()))
