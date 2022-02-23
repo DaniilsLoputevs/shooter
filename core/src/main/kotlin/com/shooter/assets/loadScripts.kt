@@ -1,15 +1,16 @@
 package com.shooter.assets
 
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.joinAll
 import ktx.async.KtxAsync
 
-val CHAPTER = TextureAssetDefinition("game/player_01.png")
-
-public fun AssetsHolder.mainMenuAssetsLoad() : Job {
-    println("load $CHAPTER")
-
-    return KtxAsync.launch {
-        load(CHAPTER).join()
-    }
-}
+//val PLAYER_CHARACTER = TextureAssetDefinition("game/player_01.png")
+//val LOGO = TextureAssetDefinition("logo.png")
+//
+//fun AssetsHolder.mainMenuAssetsLoad(afterAssetLoaded: () -> Unit) {
+//    loadAll(
+//        PLAYER_CHARACTER,
+//        LOGO,
+//        afterLoad =  afterAssetLoaded
+//    )
+//}

@@ -3,45 +3,40 @@ package com.shooter.screens
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.shooter.Game
-import com.shooter.assets.CHAPTER
-import com.shooter.assets.mainMenuAssetsLoad
+import com.shooter.assets.TextureAssetDefinition
 import ktx.app.clearScreen
 import ktx.assets.disposeSafely
-import ktx.assets.toInternalFile
 import ktx.graphics.use
 
+val PLAYER_CHARACTER = TextureAssetDefinition("game/player_01.png")
+val LOGO = TextureAssetDefinition("logo.png")
+
 class MainMenuScreen(game: Game) : AbstractScreen(game) {
-    private val image = Texture("logo.png".toInternalFile(), true).apply {
-        setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
-    }
     private val batch = SpriteBatch()
 
-    private var player: Texture? = null
+    private lateinit var player: Texture
+    private lateinit var logo: Texture
+    private var isLoaded = false
 
     override fun show() {
-        // todo - fix
-        game.assets.mainMenuAssetsLoad()
-    //       .invokeOnCompletion {
-//            player = game.assets.get(CHAPTER);
-//        }
-//        game.assets.load(CHAPTER).join()
+        game.assets.load(PLAYER_CHARACTER, LOGO) {
+            player = game.assets.get(PLAYER_CHARACTER)
+            logo = game.assets.get(LOGO)
+            isLoaded = true
+        }
     }
 
     override fun render(delta: Float) {
         clearScreen(red = 0.7f, green = 0.7f, blue = 0.7f)
-        if (game.assets.isLoaded(CHAPTER)) player = game.assets.get(CHAPTER)
         batch.use {
-            it.draw(image, 100f, 160f)
-//
-            player?.apply {
-                println("not null")
-                it.draw(player, 100f, 160f)
+            if (isLoaded) {
+                it.draw(logo, 100f, 120f)
+                it.draw(player, 150f, 140f)
             }
         }
     }
 
     override fun dispose() {
-        image.disposeSafely()
         batch.disposeSafely()
     }
 }
