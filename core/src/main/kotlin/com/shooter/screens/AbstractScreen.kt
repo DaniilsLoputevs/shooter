@@ -4,7 +4,7 @@ import com.shooter.Game
 import ktx.app.KtxScreen
 
 abstract class AbstractScreen(
-    val game : Game
+    val game: Game
 ) : KtxScreen {
 
     override fun resize(width: Int, height: Int) {

@@ -26,7 +26,8 @@ import com.shooter.Game
  *  3 -
  * todo - InputSystem -> addTriggers
  * todo - yaml config (remove file object Config)
- * todo -
+ * todo - оставить или убрать ComponentAPI? [TransformAPI] [TransformComp]
+ * todo - нормальное оформление в коде UI
  * todo -
  * */
 fun main() {

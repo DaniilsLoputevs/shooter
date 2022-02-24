@@ -2,8 +2,8 @@ package com.shooter.assets
 
 import com.badlogic.gdx.assets.AssetDescriptor
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.utils.Disposable
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import ktx.assets.async.AssetStorage
@@ -11,7 +11,7 @@ import ktx.async.KtxAsync
 
 /**
  * Вся логика связанная с ассетами храниться тут.
- * todo - AssetHolder : uuid(name), group, ?scope, disposeAllAssets()
+ * todo - AssetHolder : uuid(name), ?group, ?scope, disposeAllAssets()
  */
 class AssetsHolder : Disposable {
     private val assetStore: AssetStorage = run {
@@ -19,53 +19,41 @@ class AssetsHolder : Disposable {
         AssetStorage()
     }
 
-    // todo - не нужно? O_o
-    fun <T> get(assetDefinition: AssetDefinition<T>): T {
-        return assetStore[assetDefinition.descriptor]
+    operator fun <T : Disposable> get(assetDefinition: AssetDefinition<T>): T = assetStore[assetDefinition.descriptor]
+
+
+    fun load(vararg assetDefinitions: AssetDefinition<*>, afterLoad: () -> Unit = {}) {
+        KtxAsync.launch {
+            assetDefinitions.map { assetStore.loadAsync(it.descriptor) }
+                .awaitAll().apply { afterLoad.invoke() }
+        }
     }
 
     // todo - не нужно? O_o
-    fun <T> load(assetDefinition: AssetDefinition<T>): Deferred<T> {
-        return assetStore.loadAsync(assetDefinition.descriptor)
+    fun load(assetDefinitions: List<AssetDefinition<*>>, afterLoad: () -> Unit = {}) {
+        KtxAsync.launch {
+            assetDefinitions.map { assetStore.loadAsync(it.descriptor) }
+                .awaitAll().apply { afterLoad.invoke() }
+        }
     }
 
     // todo - не нужно? O_o
-    fun <T> load(assetDefinitions: List<AssetDefinition<T>>): List<Deferred<T>> {
-        return assetDefinitions.map { assetStore.loadAsync(it.descriptor) }
+    fun load(assetDefinitions: Map<String, AssetDefinition<*>>, afterLoad: () -> Unit = {}) {
+        KtxAsync.launch {
+            assetDefinitions.map { assetStore.loadAsync(it.value.descriptor) }
+                .awaitAll().apply { afterLoad.invoke() }
+        }
     }
 
     // todo - не нужно? O_o
-    fun <T> load(vararg assetDefinitions: AssetDefinition<T>): List<Deferred<T>> {
-        return assetDefinitions.map { assetStore.loadAsync(it.descriptor) }
-    }
-
-    // todo - не нужно? O_o
-    fun <T> isLoaded(assetDefinition: AssetDefinition<T>): Boolean {
+    fun <T : Disposable> isLoaded(assetDefinition: AssetDefinition<T>): Boolean {
         return assetStore.isLoaded(assetDefinition.descriptor)
     }
 
-    fun <T> load(vararg assetDefinitions: AssetDefinition<T>, afterLoad: () -> Unit = {}) {
-        KtxAsync.launch {
-            assetDefinitions.map { assetStore.loadAsync(it.descriptor) }
-                .awaitAll().apply { afterLoad.invoke() }
-        }
-    }
-
-    fun <T> load(assetDefinitions: List<AssetDefinition<T>>, afterLoad: () -> Unit = {}) {
-        KtxAsync.launch {
-            assetDefinitions.map { assetStore.loadAsync(it.descriptor) }
-                .awaitAll().apply { afterLoad.invoke() }
-        }
-    }
-
-
-    override fun dispose() {
-        assetStore.dispose()
-    }
-
+    override fun dispose() = assetStore.dispose()
 }
 
-abstract class AssetDefinition<T>(val path: String) {
+abstract class AssetDefinition<T : Disposable>(val path: String) {
     var descriptor: AssetDescriptor<T> = descriptorInit()
 
     abstract fun descriptorInit(): AssetDescriptor<T>
@@ -74,4 +62,14 @@ abstract class AssetDefinition<T>(val path: String) {
 
 class TextureAssetDefinition(filePath: String) : AssetDefinition<Texture>(filePath) {
     override fun descriptorInit(): AssetDescriptor<Texture> = AssetDescriptor(super.path, Texture::class.java)
+}
+
+class FontAssetDefinition(filePath: String) : AssetDefinition<BitmapFont>(filePath) {
+    override fun descriptorInit(): AssetDescriptor<BitmapFont> =
+        AssetDescriptor(
+            this.path, BitmapFont::class.java,
+//            BitmapFontLoader.BitmapFontParameter().apply {
+//                atlasName = TextureAtlasAsset.UI.descriptor.fileName
+//            }
+        )
 }
